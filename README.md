@@ -1,0 +1,2 @@
+# aircon-automation
+Mackerelからのアラートを受け取ってIFTTT経由でNature Remoを操作するやつ。

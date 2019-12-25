@@ -10,6 +10,7 @@ Mackerelからのアラートを受け取ってIFTTT経由でNature Remoを操�
 - Mackerelの通知チャンネルでWebhookを選んで、当該APIを叩くようにする
 - Mackerelで不快指数のグラフを用意する
 - Mackerelで `DiscomfortIndex(TooCold)` と `DiscomfortIndex(TooCHot)` という不快指数の監視を追加して、当該通知チャンネルを設定する
+- 必要に応じてMackerelで当該通知に対してダウンタイムを設定して、エアコン自動運転が有効になる時間を制限する(例えば、寝ているであろう時間帯に制限するなど)
 - IFTTTでWebhookのイベント `aircon_on_heater` `aircon_on_cooler` `aircon_off` に対してそれぞれ適切な操作を設定する
 
 ## update

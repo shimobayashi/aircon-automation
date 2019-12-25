@@ -14,7 +14,7 @@ def lambda_handler(event:, context:)
       when 'ok'
         aircon_off
       end
-    when 'DiscomfortIndex(TooCHot)' then
+    when 'DiscomfortIndex(TooHot)' then
       case json['alert']['status']
       when 'critical'
         aircon_on_cooler

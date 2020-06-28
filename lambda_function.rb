@@ -40,26 +40,24 @@ def lambda_handler(event:, context:)
     end
   end
 
-  { statusCode: 200, body: JSON.generate(body) }
+  $logger.info(body)
+  { statusCode: 200, body: body.to_json }
 end
 
 def aircon_on_heater
   $logger.info('heater on')
   res = Net::HTTP.get(URI.parse("https://maker.ifttt.com/trigger/aircon_on_heater/with/key/#{ ENV['IFTTT_API_KEY'] }"))
-  $logger.info(res)
   return res.to_s
 end
 
 def aircon_on_cooler
   $logger.info('cooler on')
   res = Net::HTTP.get(URI.parse("https://maker.ifttt.com/trigger/aircon_on_cooler/with/key/#{ ENV['IFTTT_API_KEY'] }"))
-  $logger.info(res)
   return res.to_s
 end
 
 def aircon_off
   $logger.info('aircon off')
   res = Net::HTTP.get(URI.parse("https://maker.ifttt.com/trigger/aircon_off/with/key/#{ ENV['IFTTT_API_KEY'] }"))
-  $logger.info(res)
   return res.to_s
 end

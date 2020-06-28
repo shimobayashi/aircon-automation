@@ -1,3 +1,4 @@
+require 'time'
 require 'json'
 require 'net/https'
 require 'uri'
@@ -48,7 +49,12 @@ def should_exec_aircon_off?(monitor_id)
   threshold = Time.now.to_i - (2 * 60 * 60)
 
   alerts = fetch_alerts(monitor_id)
-  alerts = alerts.find_all { |alert| alert['openAt'] > threshold }
+  $logger.info(alerts)
+  alerts.each {|a| puts Time.at(a['openedAt'])}
+  alerts = alerts.find_all { |alert| alert['openedAt'] > threshold }
+  $logger.debug(threshold)
+  $logger.debug(alerts)
+  $logger.debug(alerts.size)
   return alerts.size >= 4
 end
 
@@ -65,7 +71,6 @@ def fetch_alerts(monitor_id)
 
   # alertsは新しい順で並んでいる
   alerts = json['alerts'].find_all { |alert| alert['monitorId'] == monitor_id }
-  $logger.info(alerts)
   return alerts
 end
 

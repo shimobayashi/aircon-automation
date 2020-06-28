@@ -30,7 +30,7 @@ def lambda_handler(event:, context:)
   end
 
   $logger.info(body)
-  { statusCode: 200, body: JSON.generate(body) }
+  { statusCode: 200, body: body.to_json }
 end
 
 # 現在時刻より一定時間以内にcriticalアラートが発生していたらエアコンOFFにして良いことにする。

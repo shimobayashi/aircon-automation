@@ -33,15 +33,26 @@ def lambda_handler(event:, context:)
   { statusCode: 200, body: JSON.generate(body) }
 end
 
+# 現在時刻より一定時間以内にcriticalアラートが発生していたらエアコンOFFにして良いことにする。
+# こうした判定がないと、criticalに至らずにwarning->okになったときにもエアコンOFFされてしまって鬱陶しいため(空調の状態などによってはしきい値を行き来することがあった)。
+#
+# ただし、 https://mackerel.io/ja/api-docs/entry/alerts によるとレスポンスに含まれる各alertのstatusは「アラートの現在のステータス」なので、
+# OKになった時点で取得しても個別のalertが過去にcriticalだったのかwarningだったのかは分からない。
+# なのでここでは OK->Warning, Warning->Critical, Critical->Warning, Warning->OK のあとに通知API経由でこの処理が呼び出されているなら
+# alertの数は4つ以上であるはずということに着目し、
+# 一定時間内にalertの数が4つ以上であった場合はcriticalな状態を経由していると判断する。
 def should_exec_aircon_off?(monitor_id)
-  open_at = get_latest_critical_alert_open_at(monitor_id)
-  # 現在時刻より一定時間以内にcriticalアラートが発生していたらエアコンOFFにして良いことにする。
-  # こうした判定がないと、criticalに至らずにwarning->okになったときにもエアコンOFFされてしまって鬱陶しいため。
-  return false if open_at == nil
-  return open_at >= Time.now.to_i - (1.5 * 60 * 60)
+  # 一定時間内とみなすしきい値。
+  # 小さすぎるとcriticalな状態を経由していてもOFFにならず、大きすぎるとwarningな状態を経由しただけなのにOFFになってしまう(warningな状態になっただけではエアコンはつけないので、無用なOFFが発生する)。
+  # 睡眠成功の観点ではOFFにならないリスクのほうが圧倒的に大きいため、迷うようなら基本的に大きめに設定する。
+  threshold = Time.now.to_i - (2 * 60 * 60)
+
+  alerts = fetch_alerts(monitor_id)
+  alerts = alerts.find_all { |alert| alert['openAt'] > threshold }
+  return alerts.size >= 4
 end
 
-def get_latest_critical_alert_open_at(monitor_id)
+def fetch_alerts(monitor_id)
   url = URI.parse('https://api.mackerelio.com/api/v0/alerts?withClosed=1')
   https = Net::HTTP.new(url.host, url.port)
   https.use_ssl = true
@@ -52,10 +63,10 @@ def get_latest_critical_alert_open_at(monitor_id)
   json = JSON.parse(res.body)
   $logger.debug(json)
 
-  # alertsは新しい順で並んでいるはずなので、findで最新の要素を取得できるはず
-  alert = json['alerts'].find { |alert| alert['monitorId'] == monitor_id && alert['status'] == 'critical' }
-  $logger.info(alert)
-  return alert ? alert['openAt'] : nil
+  # alertsは新しい順で並んでいる
+  alerts = json['alerts'].find_all { |alert| alert['monitorId'] == monitor_id }
+  $logger.info(alerts)
+  return alerts
 end
 
 def aircon_on_heater

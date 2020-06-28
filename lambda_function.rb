@@ -6,6 +6,17 @@ require 'logger'
 $logger = Logger.new(STDOUT)
 $logger.level = ENV['LOG_LEVEL'] || 'FATAL'
 
+# 現状Criticalを経由せずに Warning -> OK になった場合もエアコンをOFFにしてしまうのでうっとうしい。
+# しかしながらMackerelのAPIは
+# ・OK -> Warning, ..., Warning -> OKといった一連のアラートは1つのAlertという概念にまとめられる
+# ・1つのAlertが過去どういう状態変化を経たのか取得するAPIは存在しない
+# という事情から、Criticalを経由したかどうか判断する方法が無い。
+# そのため諦めて問題を放置している。
+#
+# 対症療法的には、長い期間の平均値を監視メトリクスにすればチャタリングすることはかなり減りそう。
+#
+# ちゃんとやるなら、そもそもエアコンのON/OFF状態をまともに取得する手段は存在しないため(純正リモコンで操作すれば途端に分からなくなる)、
+# 室温が上がり続けていたらおそらくエアコンは状況に不適切な稼働状態にあるだろうから冷房を入れるとか、そういう判断の仕方に変える必要がありそう。
 def lambda_handler(event:, context:)
   $logger.debug(event)
 

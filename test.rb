@@ -9,6 +9,7 @@ class TC_LambdaFunction < Test::Unit::TestCase
     end
 
     def test_lambda_function
-        assert_equal(1, 1)
+        response = lambda_handler(event: {}, context: {})
+        assert_equal({ statusCode: 200, body: '"Nothing to do"' }, response)
     end
 end

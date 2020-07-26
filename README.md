@@ -5,7 +5,7 @@ Mackerelからのアラートを受け取ってIFTTT経由でNature Remoを操�
 
 - Lambda実行用のいい感じのroleつくる
 - `zip lambda_function.zip lambda_function.rb`
-- `aws lambda create-function --function-name aircon_automation --runtime ruby2.5 --role arn:aws:iam::XXX --handler lambda_function.lambda_handler --zip-file fileb://lambda_function.zip --region ap-northeast-1 --environment Variables={IFTTT_API_KEY=XXX} --profile XXX`
+- `aws lambda create-function --function-name aircon_automation --runtime ruby2.5 --role arn:aws:iam::XXX --handler lambda_function.lambda_handler --zip-file fileb://lambda_function.zip --region ap-northeast-1 --environment Variables={IFTTT_API_KEY=XXX,TZ=Asia/Tokyo} --profile XXX`
 - がんばってAPI GatewayでHTTPリクエストを受け付けたらaircon_automationを呼び出すようにする
 - Mackerelの通知チャンネルでWebhookを選んで、当該APIを叩くようにする
 - Mackerelで不快指数のグラフを用意する

@@ -59,6 +59,16 @@ end
 
 def aircon_off
   $logger.info('aircon off')
+
+  # 9時～25時の間だったら何もしない。
+  # なぜならMackerelではOKだけはダウンタイムを貫通して通知されるので、
+  # Warning中に起床→生活を開始してエアコンをいれる→知らないうちにOKになって勝手にエアコンを消されて鬱陶しい
+  # という挙動が引き起こされるから。
+  now = Time.now
+  if (now.hour >= 9 || now.hour < 1)
+    return 'aircon_off is canceled. because maybe not bed time'
+  end
+
   res = Net::HTTP.get(URI.parse("https://maker.ifttt.com/trigger/aircon_off/with/key/#{ ENV['IFTTT_API_KEY'] }"))
   return res.to_s
 end

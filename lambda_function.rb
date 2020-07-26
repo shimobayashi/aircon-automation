@@ -29,14 +29,14 @@ def lambda_handler(event:, context:)
       when 'critical'
         body = aircon_on_heater
       when 'ok'
-        body = aircon_off
+        body = maybe_aircon_off
       end
     when 'DiscomfortIndex(TooHot)' then
       case event['alert']['status']
       when 'critical'
         body = aircon_on_cooler
       when 'ok'
-        body = aircon_off
+        body = maybe_aircon_off
       end
     end
   end
@@ -57,7 +57,7 @@ def aircon_on_cooler
   return res.to_s
 end
 
-def aircon_off
+def maybe_aircon_off
   $logger.info('aircon off')
 
   # 9時～25時の間だったら何もしない。
